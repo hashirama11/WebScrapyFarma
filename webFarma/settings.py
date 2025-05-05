@@ -38,6 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'farmatodo',
+    'farmabien',
+    'farmaciasas',
+    'farmahorro',
+    'locatel',
     'rest_framework.authtoken',
     'rest_framework',
 ]

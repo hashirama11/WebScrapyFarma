@@ -2,19 +2,19 @@ from asgiref.sync import async_to_sync
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from typing import List
-from ..scraper.farmatodo_scraper import FarmatodoProductsPageScraper
+from ..models import ScrapyWebFarmabien
 from rest_framework import status
-from ..models import ScrapyWebFarmatodo
+from ..scraper.farmabien_scraper import FarmabienProductsPageScraper
 
 
 
 # Obtener todos los productos resultantes de la busqueda
-def fetch_products_all_farmatodo(item: str) -> list[dict]:
+def fetch_products_all_farmabien(item: str) -> list[dict]:
 
 # Esta lógica de negocio puede ser reutilizada por diferentes métodos HTTP
-    scraper_farmatodo : FarmatodoProductsPageScraper = FarmatodoProductsPageScraper()
+    scraper_farmabien : FarmabienProductsPageScraper = FarmabienProductsPageScraper()
 
-    products : List[dict] = async_to_sync(scraper_farmatodo.search_product_farmatodo)(item)
+    products : List[dict] = async_to_sync(scraper_farmabien.search_product_farmabien)(item)
         
     # Retorna la lista de productos filtrados
     return products
@@ -24,10 +24,10 @@ def save_products_to_db(products: list[dict]) -> None:
     for product in products:
         try:
             # Verifica si el producto ya existe en la base de datos
-            existing_product = ScrapyWebFarmatodo.objects.filter(nombre=product.name).first()
+            existing_product = ScrapyWebFarmabien.objects.filter(nombre=product.name).first()
             if not existing_product:
                 # Si no existe, crea un nuevo registro
-                ScrapyWebFarmatodo.objects.create(
+                ScrapyWebFarmabien.objects.create(
                     nombre=product.name,
                     precio=product.price,
                     url=product.url,
@@ -36,7 +36,7 @@ def save_products_to_db(products: list[dict]) -> None:
             else:
                 # Si existe pero el precio ha cambiado o la fecha es diferente, crea nuevo registro
                 if existing_product.precio != product.price or existing_product.fecha != product.date:
-                    ScrapyWebFarmatodo.objects.create(
+                    ScrapyWebFarmabien.objects.create(
                         nombre=product.name,
                         precio=product.price,
                         url=product.url,
@@ -48,7 +48,7 @@ def save_products_to_db(products: list[dict]) -> None:
     
 
 # Vista que permite realizar una búsqueda de productos en Farmatodo y obtener los resultados en memoria de ejecucion
-class FarmatodoGETSearchViewAll(APIView):
+class FarmabienGETSearchViewAll(APIView):
 
     # Vista para obtener todos los productos de Farmatodo
     
@@ -61,7 +61,7 @@ class FarmatodoGETSearchViewAll(APIView):
             # Llama al método fetch_products
 
             # para obtener todos los productos de la búsqueda
-            products: List[dict] = fetch_products_all_farmatodo(item)
+            products: List[dict] = fetch_products_all_farmabien(item)
 
             # Guardar los datos en la base de datos
             save_products_to_db(products)
@@ -73,6 +73,3 @@ class FarmatodoGETSearchViewAll(APIView):
             return Response({"error": "Entrada inválida"}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": f"Error interno del servidor: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-

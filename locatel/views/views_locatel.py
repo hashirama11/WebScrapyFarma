@@ -1,33 +1,33 @@
+from typing import List
 from asgiref.sync import async_to_sync
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from typing import List
-from ..scraper.farmatodo_scraper import FarmatodoProductsPageScraper
+from rest_framework.exceptions import APIException
+import requests
+from ..scraper.locatel_scraper import LocatelProductsPageScraper
+from ..models import ScrapyWebLocatel
 from rest_framework import status
-from ..models import ScrapyWebFarmatodo
-
-
 
 # Obtener todos los productos resultantes de la busqueda
-def fetch_products_all_farmatodo(item: str) -> list[dict]:
+def fetch_products_all_locatel(item: str) -> list[dict]:
 
-# Esta lógica de negocio puede ser reutilizada por diferentes métodos HTTP
-    scraper_farmatodo : FarmatodoProductsPageScraper = FarmatodoProductsPageScraper()
+# Esta lógica de negocio puede ser reutilizada por ambos métodos
+    scraper_locatel : LocatelProductsPageScraper = LocatelProductsPageScraper()
 
-    products : List[dict] = async_to_sync(scraper_farmatodo.search_product_farmatodo)(item)
+    products : list[dict] = async_to_sync(scraper_locatel.search_product_locatel)(item)
         
     # Retorna la lista de productos filtrados
-    return products
+    return products  
 
 # Funcion para almacenar los resultados del scraper en la base de datos
 def save_products_to_db(products: list[dict]) -> None:
     for product in products:
         try:
             # Verifica si el producto ya existe en la base de datos
-            existing_product = ScrapyWebFarmatodo.objects.filter(nombre=product.name).first()
+            existing_product = ScrapyWebLocatel.objects.filter(nombre=product.name).first()
             if not existing_product:
                 # Si no existe, crea un nuevo registro
-                ScrapyWebFarmatodo.objects.create(
+                ScrapyWebLocatel.objects.create(
                     nombre=product.name,
                     precio=product.price,
                     url=product.url,
@@ -36,7 +36,7 @@ def save_products_to_db(products: list[dict]) -> None:
             else:
                 # Si existe pero el precio ha cambiado o la fecha es diferente, crea nuevo registro
                 if existing_product.precio != product.price or existing_product.fecha != product.date:
-                    ScrapyWebFarmatodo.objects.create(
+                    ScrapyWebLocatel.objects.create(
                         nombre=product.name,
                         precio=product.price,
                         url=product.url,
@@ -44,13 +44,11 @@ def save_products_to_db(products: list[dict]) -> None:
                     )
         except Exception as e:
             print(f"Error al guardar el producto: {e}")
-   
-    
-
-# Vista que permite realizar una búsqueda de productos en Farmatodo y obtener los resultados en memoria de ejecucion
-class FarmatodoGETSearchViewAll(APIView):
-
-    # Vista para obtener todos los productos de Farmatodo
+        
+# Vista que ejecuta el scraper de locatel
+class LocatelGETSearchViewAll(APIView):
+ 
+    # Vista para obtener todos los productos de Locatel
     
 
     def get(self, request, item: str):
@@ -61,7 +59,7 @@ class FarmatodoGETSearchViewAll(APIView):
             # Llama al método fetch_products
 
             # para obtener todos los productos de la búsqueda
-            products: List[dict] = fetch_products_all_farmatodo(item)
+            products: List[dict] = fetch_products_all_locatel(item)
 
             # Guardar los datos en la base de datos
             save_products_to_db(products)
@@ -76,3 +74,5 @@ class FarmatodoGETSearchViewAll(APIView):
 
 
 
+
+        
