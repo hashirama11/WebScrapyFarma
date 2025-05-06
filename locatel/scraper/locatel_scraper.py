@@ -1,9 +1,16 @@
 # Dependencias del Archivo
+from datetime import datetime
 from bs4 import BeautifulSoup
 from .Product import Product
 from typing import List, Optional
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
+
+
+# Funcion para obtener la hora actual por cada consulta exitosa
+async def get_current_time() -> str:
+    now = datetime.now()
+    return now.strftime("%Y-%m-%d %H:%M:%S")
 
 async def get_html(url: str) -> BeautifulSoup:
     
@@ -58,7 +65,7 @@ class LocatelProductsPageScraper:
                 if item_price_tag:
                     raw_price: str = item_price_tag.text.strip().replace(",", "").replace("BS", "").replace(".", "").strip()
                     try:
-                        item_price = float(raw_price)
+                        item_price = float(raw_price)/100
                     except ValueError:
                         print(f"Error al convertir el precio: {raw_price}")
 
@@ -75,7 +82,8 @@ class LocatelProductsPageScraper:
                     id=index + 1,
                     name=item_name,
                     price=item_price,
-                    url=item_url
+                    url=item_url,
+                    date= await get_current_time()
                 ))
 
             except Exception as e:

@@ -1,7 +1,14 @@
 # Dependencias de Archivo
+from datetime import datetime
 from bs4 import BeautifulSoup
 from .Product import Product
 from playwright.async_api import async_playwright
+
+
+# Funcion para obtener la hora actual por cada consulta exitosa
+async def get_current_time() -> str:
+    now = datetime.now()
+    return now.strftime("%Y-%m-%d %H:%M:%S")
 
 async def get_html(url: str) -> BeautifulSoup:
     
@@ -38,8 +45,8 @@ class FarmahorroProductsPageScraper:
                     item_name = item_name_tag.text.strip()
                     
                     # Limpiar y convertir precio
-                    item_price_cleaned = item_price_tag.text.strip().replace("Bs.", "").replace("Bs", "").replace(",", "").strip()
-                    item_price = float(item_price_cleaned)
+                    item_price_cleaned = item_price_tag.text.strip().replace("Bs.", "").replace("Bs", "").replace(".", "").replace(",", "").strip()
+                    item_price = float(item_price_cleaned)/100
 
                     # Procesar URL
                     item_url = item_url_tag.attrs["href"]
@@ -51,7 +58,8 @@ class FarmahorroProductsPageScraper:
                         id=index + 1,
                         name=item_name,
                         price=item_price,
-                        url=item_url
+                        url=item_url,
+                        date=await get_current_time()
                     ))
             except Exception as e:
                 print(f"Error procesando item: {e}")
