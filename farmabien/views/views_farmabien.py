@@ -5,7 +5,7 @@ from typing import List
 from ..models import ScrapyWebFarmabien
 from rest_framework import status
 from ..scraper.farmabien_scraper import FarmabienProductsPageScraper
-
+from ..loggin_config import logger
 
 
 # Obtener todos los productos resultantes de la busqueda
@@ -43,7 +43,7 @@ def save_products_to_db(products: list[dict]) -> None:
                         fecha=product.date,
                     )
         except Exception as e:
-            print(f"Error al guardar el producto: {e}")
+            logger.error(f"Error al guardar el producto: {e}")
    
     
 

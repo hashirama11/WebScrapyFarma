@@ -3,6 +3,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from .Product import Product
 from playwright.async_api import async_playwright
+from ..loggin_config import logger
 
 
 # Funcion para obtener la hora actual por cada consulta exitosa
@@ -22,7 +23,7 @@ async def get_html(url: str) -> BeautifulSoup:
             return BeautifulSoup(content, "html.parser")  # Retornar el HTML parseado
         
         except Exception as e:
-            print(f"Error esperando la carga de la página: {e}")
+            logger.error(f"Error esperando la carga de la página: {e}")
             await browser.close()
             return None
 
@@ -62,7 +63,7 @@ class Farmacia_sasProductsPageScraper:
                         date=await get_current_time()
                     ))
             except Exception as e:
-                print(f"Error procesando producto: {e}")
+                logger.error(f"Error procesando producto: {e}")
         return products
     async def search_product_farmacias_sas(self, item: str) -> list:
         farmaciassas_url = f"https://tienda.farmaciasaas.com/buscar/{item}/0"

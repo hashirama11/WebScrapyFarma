@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from typing import List
 from ..scraper.farmatodo_scraper import FarmatodoProductsPageScraper
 from rest_framework import status
+from ..loggin_config import logger
 from ..models import ScrapyWebFarmatodo
 
 
@@ -43,7 +44,7 @@ def save_products_to_db(products: list[dict]) -> None:
                         fecha=product.date,
                     )
         except Exception as e:
-            print(f"Error al guardar el producto: {e}")
+            logger.error(f"Error al guardar el producto: {e}")
    
     
 

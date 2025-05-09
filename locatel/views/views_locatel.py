@@ -7,6 +7,7 @@ import requests
 from ..scraper.locatel_scraper import LocatelProductsPageScraper
 from ..models import ScrapyWebLocatel
 from rest_framework import status
+from ..loggin_config import logger
 
 # Obtener todos los productos resultantes de la busqueda
 def fetch_products_all_locatel(item: str) -> list[dict]:
@@ -43,7 +44,7 @@ def save_products_to_db(products: list[dict]) -> None:
                         fecha=product.date,
                     )
         except Exception as e:
-            print(f"Error al guardar el producto: {e}")
+            logger.error(f"Error al guardar el producto: {e}")
         
 # Vista que ejecuta el scraper de locatel
 class LocatelGETSearchViewAll(APIView):

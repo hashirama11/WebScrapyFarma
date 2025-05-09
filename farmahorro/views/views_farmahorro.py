@@ -5,6 +5,7 @@ from typing import List
 from ..models import ScrapyWebFarmahorro
 from rest_framework import status
 from ..scraper.farmahorro_scraper import FarmahorroProductsPageScraper
+from ..loggin_config import logger
 
 
 
@@ -43,7 +44,7 @@ def save_products_to_db(products: list[dict]) -> None:
                         fecha=product.date,
                     )
         except Exception as e:
-            print(f"Error al guardar el producto: {e}")
+            logger.error(f"Error al guardar el producto: {e}")
    
     
 

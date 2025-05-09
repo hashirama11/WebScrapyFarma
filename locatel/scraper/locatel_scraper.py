@@ -5,6 +5,7 @@ from .Product import Product
 from typing import List, Optional
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
+from ..loggin_config import logger
 
 
 # Funcion para obtener la hora actual por cada consulta exitosa
@@ -24,7 +25,7 @@ async def get_html(url: str) -> BeautifulSoup:
             return BeautifulSoup(content, "html.parser")  # Retornar el HTML parseado
         
         except Exception as e:
-            print(f"Error esperando la carga de la página: {e}")
+            logger.error(f"Error esperando la carga de la página: {e}")
             await browser.close()
             return None
 
@@ -43,7 +44,7 @@ class LocatelProductsPageScraper:
             "div", {"class": "vtex-search-result-3-x-galleryItem vtex-search-result-3-x-galleryItem--normal pa4"}
         )
         if not products_div_list:
-            print("No se encontraron productos en Locatel.")
+            logger.info("No se encontraron productos en Locatel.")
             return products
 
         # Iterar sobre cada producto encontrado
@@ -87,7 +88,7 @@ class LocatelProductsPageScraper:
                 ))
 
             except Exception as e:
-                print(f"Error procesando producto en índice {index}: {e}")
+                logger.error(f"Error procesando producto en índice {index}: {e}")
                 continue  # Continuar con el siguiente producto en caso de error
 
         return products
@@ -99,5 +100,5 @@ class LocatelProductsPageScraper:
             html_content: Optional[BeautifulSoup] = await get_html(locatel_url)
             return await self.get_products(html_content)
         except Exception as e:
-            print(f"Error durante la búsqueda en Locatel: {e}")
+            logger.error(f"Error durante la búsqueda en Locatel: {e}")
             return []

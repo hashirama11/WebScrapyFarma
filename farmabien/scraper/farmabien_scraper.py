@@ -1,15 +1,24 @@
 # Dependencias de este Archivo
 from datetime import datetime
+from typing import Dict, Union
 from .Product import Product
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
+from rest_framework.response import Response
+from ..loggin_config import logger
 
 
+# Configuracion de logger para mensajes de debug
 # Funcion para obtener la hora actual por cada consulta exitosa
+
+
+# funcion para obtener la hora actual por cada consulta exitosa
 async def get_current_time() -> str:
     now = datetime.now()
     return now.strftime("%Y-%m-%d %H:%M:%S")
 
+
+# Funcion para obtener el HTML de una página web y devolver el contenido parseado
 async def get_html(url: str) -> BeautifulSoup:
     
     async with async_playwright() as p:
@@ -22,9 +31,11 @@ async def get_html(url: str) -> BeautifulSoup:
             return BeautifulSoup(content, "html.parser")  # Retornar el HTML parseado
         
         except Exception as e:
-            print(f"Error esperando la carga de la página: {e}")
+            logger.error(f"Error esperando la carga de la página: {e}")
             await browser.close()
             return None
+
+    
 
 class FarmabienProductsPageScraper:
     
@@ -38,7 +49,7 @@ class FarmabienProductsPageScraper:
         # Buscar todos los contenedores de productos
         products_div_list = html_content.find_all("div", {"class": "product-item card"})
         if not products_div_list:
-            print("No se encontraron productos en Farmabien.")
+            logger.info("No se encontraron productos en Farmabien.")
             return products
 
         # Iterar sobre cada producto encontrado
@@ -62,7 +73,7 @@ class FarmabienProductsPageScraper:
                     try:
                         item_price = float(raw_price)/100
                     except ValueError:
-                        print(f"Error al convertir el precio: {raw_price}")
+                        logger.error(f"Error al convertir el precio: {raw_price}")
                         item_price = None
                 else:
                     item_price = None
@@ -86,7 +97,7 @@ class FarmabienProductsPageScraper:
                 ))
 
             except Exception as e:
-                print(f"Error procesando producto en índice {index}: {e}")
+                logger.error(f"Error procesando producto en índice {index}: {e}")
                 continue  # Continuar con el siguiente producto en caso de error
 
         return products
@@ -99,5 +110,5 @@ class FarmabienProductsPageScraper:
             html_content = await get_html(farmabien_url)
             return await self.get_products(html_content)
         except Exception as e:
-            print(f"Error durante la búsqueda en Farmabien: {e}")
+            logger.error(f"Error durante la búsqueda en Farmabien: {e}")
             return []
