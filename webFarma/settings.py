@@ -79,14 +79,12 @@ WSGI_APPLICATION = 'webFarma.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# Establecimiento de SQLite como punto de partida de desarrollo.
+# SQLite bloquea la base de datos durante la escritura. Escribe de forma sincrona. Las lecturas si pueden ser multiples
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'scrapydb',
-        'USER': 'chester',
-        'PASSWORD': 'Turambar11@',
-        'HOST': 'localhost',  
-        'PORT': '5432',       
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
