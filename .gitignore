@@ -1,0 +1,79 @@
+﻿# Archivos específicos del sistema operativo Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Archivos y directorios de JetBrains PyCharm
+.idea/
+*.iml
+workspace.xml
+tasks.xml
+shelf/
+
+# Entornos virtuales de Python
+venv/
+env/
+.venv/
+.env/
+*/activate
+*/pip-selfcheck.json
+*/pyvenv.cfg
+local_settings.py
+
+# Archivos de compilación de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Archivos de base de datos SQLite (si la usas para desarrollo local)
+*.sqlite3
+db.sqlite3
+db.sqlite3-journal
+
+# Archivos de Django
+*.log
+local_settings.py
+*.pot
+*.mo
+static_root/
+media_root/
+
+# Archivos de dependencias
+pip-freeze.txt
+requirements.txt.bak
+
+# Archivos de testing y cobertura
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.tox/
+nosetests.xml
+coverage.xml
+*,cover
+*.py,cover
+.hypothesis/
+
+# Archivos de configuración sensibles (nunca subas tus claves secretas)
+.env
+.env.*
+secrets.yml
