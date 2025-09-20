@@ -2,18 +2,16 @@ from typing import List
 from asgiref.sync import async_to_sync
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.exceptions import APIException
-import requests
 from ..scraper.locatel_scraper import LocatelProductsPageScraper
 from ..models import ScrapyWebLocatel
 from rest_framework import status
-from ..loggin_config import logger
+from utils.loggin_config import logger
 
 # Obtener todos los productos resultantes de la busqueda
 def fetch_products_all_locatel(item: str) -> list[dict]:
 
-# Esta lógica de negocio puede ser reutilizada por ambos métodos
-    scraper_locatel : LocatelProductsPageScraper = LocatelProductsPageScraper()
+    # Esta lógica de negocio puede ser reutilizada por ambos métodos
+    scraper_locatel: LocatelProductsPageScraper = LocatelProductsPageScraper()
 
     products : list[dict] = async_to_sync(scraper_locatel.search_product_locatel)(item)
         
@@ -35,7 +33,7 @@ def save_products_to_db(products: list[dict]) -> None:
                     fecha=product.date,
                 )
             else:
-                # Si existe pero el precio ha cambiado o la fecha es diferente, crea nuevo registro
+                # Si existe, pero el precio ha cambiado o la fecha es diferente, crea nuevo registro
                 if existing_product.precio != product.price or existing_product.fecha != product.date:
                     ScrapyWebLocatel.objects.create(
                         nombre=product.name,
@@ -50,9 +48,8 @@ def save_products_to_db(products: list[dict]) -> None:
 class LocatelGETSearchViewAll(APIView):
  
     # Vista para obtener todos los productos de Locatel
-    
-
-    def get(self, request, item: str):
+    @staticmethod
+    def get(request, item: str):
         try:
             # Verifica si el parámetro 'item' está vacío
             if not item:
@@ -72,8 +69,3 @@ class LocatelGETSearchViewAll(APIView):
             return Response({"error": "Entrada inválida"}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": f"Error interno del servidor: {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
-
-        

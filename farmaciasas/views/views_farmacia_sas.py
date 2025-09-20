@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from typing import List
 from ..models import ScrapyWebFarmaciasas
 from rest_framework import status
-from ..scraper.farmaciasas_scraper import Farmacia_sasProductsPageScraper
+from ..scraper.farmaciasas_scraper import FarmaciasasProductsPageScraper
 from ..loggin_config import logger
 
 
@@ -13,7 +13,7 @@ from ..loggin_config import logger
 def fetch_products_all_farmacia_sas(item: str) -> list[dict]:
 
 # Esta lógica de negocio puede ser reutilizada por diferentes métodos HTTP
-    scraper_farmaciasas : Farmacia_sasProductsPageScraper = Farmacia_sasProductsPageScraper()
+    scraper_farmaciasas : FarmaciasasProductsPageScraper = FarmaciasasProductsPageScraper()
 
     products : List[dict] = async_to_sync(scraper_farmaciasas.search_product_farmacias_sas)(item)
         

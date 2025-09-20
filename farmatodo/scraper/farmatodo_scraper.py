@@ -1,36 +1,16 @@
 from bs4 import BeautifulSoup
-from .Product import Product
-from playwright.async_api import async_playwright
-from datetime import datetime
+from utils.Product import Product
+from utils.get_html import get_html
+from utils.product_dinamic import product_dinamic
 from ..loggin_config import logger
 
-# Funcion para obtener la hora actual por cada consulta exitosa
-async def get_current_time() -> str:
-    now = datetime.now()
-    return now.strftime("%Y-%m-%d %H:%M:%S")
-
-# Funcion para obtener el HTML de una página web y devolver el contenido parseado
-async def get_html(url: str) -> BeautifulSoup:
-    
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)  # Iniciar el navegador en modo headless
-        page = await browser.new_page()
-        try:
-            await page.goto(url)
-            content = await page.content()  # Capturar el contenido HTML
-            await browser.close()
-            return BeautifulSoup(content, "html.parser")  # Retornar el HTML parseado
-        
-        except Exception as e:
-            logger.error(f"Error esperando la carga de la página: {e}")
-            await browser.close()
-            return None
 
 
 # Clase para realizar el scraping de productos de Farmatodo cada vez que se realize un request
 class FarmatodoProductsPageScraper:
-    
-    async def get_products(self, html_content: BeautifulSoup) -> list[Product]:
+    @staticmethod
+    async def get_products(html_content: BeautifulSoup) -> list[Product]:
+
         products = []
         if not html_content:
             return products
@@ -48,29 +28,20 @@ class FarmatodoProductsPageScraper:
                     
                     # Limpiar y convertir precio
                     item_price_cleaned = item_price_tag.text.strip().replace("Bs.", "").replace("Bs", "").replace(",", "").replace(".","").strip()
-                    item_price = float(item_price_cleaned)/100
 
-                    # Procesar URL
                     item_url = item_url_tag.attrs["href"]
                     if not item_url.startswith("http"):
                         item_url = "https://www.farmatodo.com.ve" + item_url
 
+                    await product_dinamic(item_price_cleaned, item_url, index, item_name)
 
-                    # Añadir el producto a la lista
-                    products.append(Product(
-                        id=index + 1,
-                        name=item_name,
-                        price=item_price,
-                        url=item_url,
-                        # Obtener la fecha actual
-                        date= await get_current_time()
-                    ))
             except Exception as e:
                 logger.error(f"Error procesando item: {e}")
                 pass
         return products
 
-    async def search_product_farmatodo(self, item: str) -> list:
+    @staticmethod
+    async def search_product_farmatodo(item: str) -> list:
         farmatodo_url = f"https://www.farmatodo.com.ve/buscar?product={item}"
         html_content = await get_html(farmatodo_url)
 

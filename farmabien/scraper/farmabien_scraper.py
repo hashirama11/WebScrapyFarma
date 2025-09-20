@@ -1,10 +1,8 @@
 # Dependencias de este Archivo
-from datetime import datetime
-from typing import Dict, Union
-from .Product import Product
+from utils.Product import Product
+from utils.get_current_time import get_current_time
+from utils.get_html import get_html
 from bs4 import BeautifulSoup
-from playwright.async_api import async_playwright
-from rest_framework.response import Response
 from ..loggin_config import logger
 
 
@@ -12,35 +10,11 @@ from ..loggin_config import logger
 # Funcion para obtener la hora actual por cada consulta exitosa
 
 
-# funcion para obtener la hora actual por cada consulta exitosa
-async def get_current_time() -> str:
-    now = datetime.now()
-    return now.strftime("%Y-%m-%d %H:%M:%S")
-
-
-# Funcion para obtener el HTML de una página web y devolver el contenido parseado
-async def get_html(url: str) -> BeautifulSoup:
-    
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)  # Iniciar el navegador en modo headless
-        page = await browser.new_page()
-        try:
-            await page.goto(url)
-            content = await page.content()  # Capturar el contenido HTML
-            await browser.close()
-            return BeautifulSoup(content, "html.parser")  # Retornar el HTML parseado
-        
-        except Exception as e:
-            logger.error(f"Error esperando la carga de la página: {e}")
-            await browser.close()
-            return None
-
-    
-
 class FarmabienProductsPageScraper:
     
     # Obtener los productos del contenido HTML
-    async def get_products(self, html_content: BeautifulSoup) -> list[Product]:
+    @staticmethod
+    async def get_products(html_content: BeautifulSoup | None) -> list[Product]:
         products = []  # Lista para almacenar los productos
 
         if not html_content:  # Verificar si el contenido HTML es válido
@@ -89,7 +63,7 @@ class FarmabienProductsPageScraper:
 
                 # Agregar producto a la lista
                 products.append(Product(
-                    id=index + 1,
+                    id_product=index + 1,
                     name=item_name,
                     price=item_price,
                     url=item_url,
